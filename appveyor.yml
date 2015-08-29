@@ -1,0 +1,118 @@
+version: "{build}"
+
+skip_tags: true
+
+environment:
+  mirrors: pacman-mirrors-20150722-1-any.pkg.tar.xz
+  msys2: msys2-base-x86_64-20150512.tar
+
+cache:
+  - '%msys2%'
+  - '%mirrors%'
+  - C:\msys64\var\cache\pacman\pkg
+
+init: # Simplify the PATH variable
+  - "set PATH=%SystemRoot%\\system32;%SystemRoot%;\
+    %SystemRoot%\\System32\\Wbem;\
+    C:\\Program Files\\7-Zip;\
+    C:\\Program Files (x86)\\Git\\cmd;\
+    C:\\Program Files\\AppVeyor\\BuildAgent"
+
+install:
+  - .\msys2.bat
+  - "C:\\msys64\\usr\\bin\\sh --login -c \"
+      pacman -S --needed --noconfirm zip
+    \" > nul 2> nul"
+  - git submodule update --init
+  - cd %APPVEYOR_BUILD_FOLDER%\vim
+  - git rev-parse HEAD | git name-rev --stdin --name-only --tags > ../tag
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - set /P github_release= < tag && del /Q tag
+  - echo Building release %github_release%.%APPVEYOR_BUILD_NUMBER%
+  - 'cd "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\"'
+  - .\SetEnv.cmd /x64 /release > nul
+
+build_script:
+  - cd %APPVEYOR_BUILD_FOLDER%\vim\src
+  - >
+      nmake -f Make_mvc.mak CPU=AMD64 GUI=yes IME=yes MBYTE=yes ICONV=yes
+      DEBUG=no PYTHON_VER=27 DYNAMIC_PYTHON=yes PYTHON=C:\Python27-x64
+      PYTHON3_VER=34 DYNAMIC_PYTHON3=yes PYTHON3=C:\Python34-x64
+      > nul 2> nul
+  - set MSYSTEM=MINGW64
+
+after_build:
+  - "C:\\msys64\\usr\\bin\\sh --login -c '
+      cd \"${APPVEYOR_BUILD_FOLDER}/vim\" &&
+      cp
+        vim/src/gvim.exe
+        vim src/vimrun.exe
+        vim/src/GvimExt/gvimext.dll
+        vim/src/gvim.pdb
+        . &&
+      cp vim/src/xxd/xxd.exe xxdw32.exe &&
+      cp vim/src/install.exe installw32.exe &&
+      cp vim/src/uninstal.exe uninstalw32.exe
+    '"
+  - "C:\\msys64\\usr\\bin\\sh --login -c '
+      cd \"${APPVEYOR_BUILD_FOLDER}/vim\" &&
+      make VIM=./gvim.exe dosbin_gvim &&
+      cd $APPVEYOR_BUILD_FOLDER/vim/dist &&
+      openssl sha1 gvim74.zip > gvim74.zip.sha1
+    '"
+# - copy ..\libintl-8.dll . > nul
+# - >
+#     %sh% "exec 0</dev/null &&
+#     cd $APPVEYOR_BUILD_FOLDER/$gettext/gettext-tools &&
+#     ./configure &&
+#     make &&
+#     ls src"
+# - cd %APPVEYOR_BUILD_FOLDER%\vim\src\po
+# - >
+#     nmake -f Make_mvc.mak
+#     GETTEXT_PATH=%APPVEYOR_BUILD_FOLDER%\%gettext%\gettext-tools\src
+#     all
+# - >
+#     %sh% "exec 0</dev/null &&
+#     cd $APPVEYOR_BUILD_FOLDER/vim &&
+#     rm src/po/Makefile &&
+#     touch src/auto/config.mk &&
+#     make VIM=./gvim.exe dosrt"
+# - >
+#     %sh% "exec 0</dev/null &&
+#     openssl sha1 vim74rt.zip | tee vim74rt.zip.sha1"
+
+artifacts:
+  - path: vim\dist\gvim74.zip
+  - path: vim\dist\gvim74.zip.sha1
+  - path: vim\dist\vim74rt.zip
+  - path: vim\dist\vim74rt.zip.sha1
+
+before_test:
+  - cd %APPVEYOR_BUILD_FOLDER%\vim
+  - .\gvim -u NONE -c "redir @a | version | 0put a | wq!" version.txt
+  - type version.txt && del version.txt
+
+test_script:
+  - cd %APPVEYOR_BUILD_FOLDER%\vim\src\testdir
+  # needs unix tools like diff; try MSYS versions
+  - set PATH=C:\msys64\usr\bin;%PATH%
+  - nmake -f Make_dos.mak VIMPROG=..\..\gvim > nul
+
+on_failure:
+  - ps: "$blockRdp = $true; iex ((new-object net.webclient).DownloadString((\
+      'https://raw.githubusercontent.com/appveyor/ci/master/scripts/\
+      enable-rdp.ps1')))"
+
+#deploy:
+#  release: $(github_release).$(APPVEYOR_BUILD_NUMBER)
+#  description: "[AppVeyor build](https://ci.appveyor.com/project/\
+#    $(APPVEYOR_REPO_NAME)/build/$(APPVEYOR_BUILD_VERSION))"
+#  provider: GitHub
+#  artifact:
+#    dist\gvim74.zip,dist\gvim74.zip.sha1
+#  draft: true
+#  on: { appveyor_repo_tag: false }
+#  auth_token:
+#    secure: >
+#        qty+OleXdcHipnzD0RGUfPbTpe5Q9WtPvIknOFhkaIzQ28ccEsMU1mKSKQ2lnLUn
