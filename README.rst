@@ -51,3 +51,12 @@ References
 -   `Makefile adds itself as a target
     <http://stackoverflow.com/questions/4266281/
     makefile-adds-itself-as-target/4270649#4270649>`__
+
+Git attributes
+--------------
+
+The file .git/modules/vim/info/attributes contains::
+
+    *.diff -text
+    *.in -text
+    *.ok -text
