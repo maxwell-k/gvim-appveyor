@@ -43,17 +43,19 @@ build_script:
 
 after_build:
   - "C:\\msys64\\usr\\bin\\sh --login -c \"
+      cd vim &&
       cp
-        vim/src/gvim.exe
-        vim/src/vimrun.exe
-        vim/src/GvimExt/gvimext.dll
-        vim/src/gvim.pdb
+        src/gvim.exe
+        src/vimrun.exe
+        src/GvimExt/gvimext.dll
+        src/gvim.pdb
         . &&
-      cp vim/src/xxd/xxd.exe xxdw32.exe &&
-      cp vim/src/install.exe installw32.exe &&
-      cp vim/src/uninstal.exe uninstalw32.exe &&
+      cp src/xxd/xxd.exe xxdw32.exe &&
+      cp src/install.exe installw32.exe &&
+      cp src/uninstal.exe uninstalw32.exe &&
       make VIM=./gvim.exe dosbin_gvim &&
-      cd $APPVEYOR_BUILD_FOLDER/vim/dist &&
+      cp dist/gvim74.zip .. &&
+      cd .. &&
       sha256sum gvim74.zip > gvim74.zip.sha256
     \""
 # - copy ..\libintl-8.dll . > nul
@@ -77,8 +79,8 @@ after_build:
 #     sha256sum vim74rt.zip > vim74rt.zip.sha256"
 
 artifacts:
-  - path: vim\dist\gvim74.zip
-  - path: vim\dist\gvim74.zip.sha256
+  - path: gvim74.zip
+  - path: gvim74.zip.sha256
 # - path: vim\dist\vim74rt.zip
 # - path: vim\dist\vim74rt.zip.sha256
 
@@ -103,8 +105,7 @@ on_failure:
 #  description: "[AppVeyor build](https://ci.appveyor.com/project/\
 #    $(APPVEYOR_REPO_NAME)/build/$(APPVEYOR_BUILD_VERSION))"
 #  provider: GitHub
-#  artifact:
-#    dist\gvim74.zip,dist\gvim74.zip.sha1
+#  artifact: gvim74.zip,gvim74.zip.sha256
 #  draft: true
 #  on: { appveyor_repo_tag: false }
 #  auth_token:
