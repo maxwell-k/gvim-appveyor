@@ -42,8 +42,8 @@ build_script:
   - set MSYSTEM=MINGW64
 
 after_build:
-  - "C:\\msys64\\usr\\bin\\sh --login -c '
-      cd \"${APPVEYOR_BUILD_FOLDER}/vim\" &&
+  - "C:\\msys64\\usr\\bin\\sh --login -c \"
+      cd \"\"\"${APPVEYOR_BUILD_FOLDER}/vim\"\"\" &&
       cp
         vim/src/gvim.exe
         vim src/vimrun.exe
@@ -52,14 +52,11 @@ after_build:
         . &&
       cp vim/src/xxd/xxd.exe xxdw32.exe &&
       cp vim/src/install.exe installw32.exe &&
-      cp vim/src/uninstal.exe uninstalw32.exe
-    '"
-  - "C:\\msys64\\usr\\bin\\sh --login -c '
-      cd \"${APPVEYOR_BUILD_FOLDER}/vim\" &&
+      cp vim/src/uninstal.exe uninstalw32.exe &&
       make VIM=./gvim.exe dosbin_gvim &&
       cd $APPVEYOR_BUILD_FOLDER/vim/dist &&
-      openssl sha1 gvim74.zip > gvim74.zip.sha1
-    '"
+      sha256sum gvim74.zip > gvim74.zip.sha256
+    \""
 # - copy ..\libintl-8.dll . > nul
 # - >
 #     %sh% "exec 0</dev/null &&
@@ -77,16 +74,14 @@ after_build:
 #     cd $APPVEYOR_BUILD_FOLDER/vim &&
 #     rm src/po/Makefile &&
 #     touch src/auto/config.mk &&
-#     make VIM=./gvim.exe dosrt"
-# - >
-#     %sh% "exec 0</dev/null &&
-#     openssl sha1 vim74rt.zip | tee vim74rt.zip.sha1"
+#     make VIM=./gvim.exe dosrt &&
+#     sha256sum vim74rt.zip > vim74rt.zip.sha256"
 
 artifacts:
   - path: vim\dist\gvim74.zip
-  - path: vim\dist\gvim74.zip.sha1
-  - path: vim\dist\vim74rt.zip
-  - path: vim\dist\vim74rt.zip.sha1
+  - path: vim\dist\gvim74.zip.sha256
+# - path: vim\dist\vim74rt.zip
+# - path: vim\dist\vim74rt.zip.sha256
 
 before_test:
   - cd %APPVEYOR_BUILD_FOLDER%\vim
