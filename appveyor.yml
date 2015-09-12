@@ -43,10 +43,9 @@ build_script:
 
 after_build:
   - "C:\\msys64\\usr\\bin\\sh --login -c \"
-      cd \"\"\"${APPVEYOR_BUILD_FOLDER}/vim\"\"\" &&
       cp
         vim/src/gvim.exe
-        vim src/vimrun.exe
+        vim/src/vimrun.exe
         vim/src/GvimExt/gvimext.dll
         vim/src/gvim.pdb
         . &&
