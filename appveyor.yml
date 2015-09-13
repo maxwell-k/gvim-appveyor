@@ -3,6 +3,9 @@ version: "{build}"
 skip_tags: true
 
 environment:
+  libintl:
+    https://ci.appveyor.com/api/buildjobs/4ylailn76rrl85db/artifacts/
+  # https://github.com/maxwell-k/libintl-appveyor/releases/download/0.19.5.1.5/
   mirrors: pacman-mirrors-20150722-1-any.pkg.tar.xz
   msys2: msys2-base-x86_64-20150512.tar
 
@@ -23,6 +26,14 @@ install:
   - "C:\\msys64\\usr\\bin\\sh --login -c \"
       pacman -S --needed --noconfirm zip
     \" > nul 2> nul"
+  - appveyor DownloadFile %libintl%/libintl-8.dll
+  - appveyor DownloadFile %libintl%/msgfmt.exe
+  - appveyor DownloadFile %libintl%/xgettext.exe
+  - appveyor DownloadFile %libintl%/msgmerge.exe
+  - appveyor DownloadFile %libintl%/release.sha256
+  - "C:\\msys64\\usr\\bin\\sh --login -c \"
+      sha256sum -c release.sha256
+    \""
   - git submodule update --init
   - cd %APPVEYOR_BUILD_FOLDER%\vim
   - git rev-parse HEAD | git name-rev --stdin --name-only --tags > ../tag
