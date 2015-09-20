@@ -12,6 +12,9 @@ cache:
   - C:\msys64\var\cache\pacman\pkg\zip-3.0-1-x86_64.pkg.tar.xz
 
 init: # Simplify the PATH variable
+  - ps: "iex ((new-object net.webclient).DownloadString((\
+      'https://raw.githubusercontent.com/appveyor/ci/master/scripts/\
+      enable-rdp.ps1')))"
   - "set PATH=\
       ;%SystemRoot%\\system32\
       ;%SystemRoot%\
@@ -69,7 +72,10 @@ after_build: # Package with MSYS2
 
 before_test:
   - cd %APPVEYOR_BUILD_FOLDER%\vim
-  - .\gvim -u NONE -c "redir @a | version | 0put a | wq!" version.txt
+  - >
+      .\gvim -u NONE --cmd "set guioptions+=M"
+      --cmd "redir @a | version | 0put a | wq!"
+      version.txt
   - type version.txt && del version.txt
 
 test_script:

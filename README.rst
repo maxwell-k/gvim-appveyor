@@ -25,6 +25,10 @@ References
 
 See `<https://github.com/maxwell-k/libintl-appveyor#references>`__
 
+-   `:help gui-init`
+-   `AppVeyor RDP Instructions
+    <http://www.appveyor.com/docs/how-to/rdp-to-build-worker>`__
+
 Git attributes
 --------------
 
