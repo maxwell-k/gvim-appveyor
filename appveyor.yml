@@ -18,24 +18,21 @@ init: # Simplify the PATH variable
     C:\\Program Files (x86)\\Git\\cmd;\
     C:\\Program Files\\AppVeyor\\BuildAgent"
 
-install: # install prerequisites, download files
+install: # Install prerequisites
   - .\msys2.bat
   - "C:\\msys64\\usr\\bin\\sh --login -c \"
       pacman -S --needed --noconfirm zip
     \" > nul 2> nul"
+
+before_build: # Download content
   - appveyor DownloadFile %libintl%/libintl-8.dll
   - appveyor DownloadFile %libintl%/release.sha256
   - "C:\\msys64\\usr\\bin\\sh --login -c \"
       sha256sum -c release.sha256
     \""
   - git submodule update --init
-  - cd %APPVEYOR_BUILD_FOLDER%\vim
-  - git rev-parse HEAD | git name-rev --stdin --name-only --tags > ../tag
-  - cd %APPVEYOR_BUILD_FOLDER%
-  - set /P github_release= < tag && del /Q tag
-  - echo Building release %github_release%.%APPVEYOR_BUILD_NUMBER%
 
-build_script: # compile with Visual Studio
+build_script: # Compile with Visual Studio
   - 'cd "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\"'
   - .\SetEnv.cmd /x64 /release > nul
   - cd %APPVEYOR_BUILD_FOLDER%\vim\src
@@ -47,7 +44,7 @@ build_script: # compile with Visual Studio
   - cd %APPVEYOR_BUILD_FOLDER%\vim\src\po
   - nmake -f Make_mvc.mak GETTEXT_PATH=C:\msys64\usr\bin\ all > nul 2> nul
 
-after_build: # package with MSYS2
+after_build: # Package with MSYS2
   - set MSYSTEM=MINGW64
   - "C:\\msys64\\usr\\bin\\sh --login -c \"
       cd vim &&
@@ -76,12 +73,6 @@ after_build: # package with MSYS2
       sha256sum vim74rt.zip > vim74rt.zip.sha256
     \""
 
-artifacts:
-  - path: gvim74.zip
-  - path: gvim74.zip.sha256
-  - path: vim74rt.zip
-  - path: vim74rt.zip.sha256
-
 before_test:
   - cd %APPVEYOR_BUILD_FOLDER%\vim
   - .\gvim -u NONE -c "redir @a | version | 0put a | wq!" version.txt
@@ -89,7 +80,7 @@ before_test:
 
 test_script:
   - cd %APPVEYOR_BUILD_FOLDER%\vim\src\testdir
-  # needs unix tools like diff; try MSYS versions
+  # needs unix tools like diff; use MSYS2 versions
   - set PATH=C:\msys64\usr\bin;%PATH%
   - nmake -f Make_dos.mak VIMPROG=..\..\gvim > nul
 
@@ -97,6 +88,18 @@ on_failure:
   - ps: "$blockRdp = $true; iex ((new-object net.webclient).DownloadString((\
       'https://raw.githubusercontent.com/appveyor/ci/master/scripts/\
       enable-rdp.ps1')))"
+
+artifacts:
+  - path: gvim74.zip
+  - path: gvim74.zip.sha256
+  - path: vim74rt.zip
+  - path: vim74rt.zip.sha256
+
+before_deploy: # Find the vim version for the release label
+  - cd %APPVEYOR_BUILD_FOLDER%\vim
+  - git rev-parse HEAD | git name-rev --stdin --name-only --tags > ../tag
+  - cd .. && set /P github_release= < tag && del /Q tag
+  - echo Built release %github_release%.%APPVEYOR_BUILD_NUMBER%
 
 deploy:
   release: $(github_release).$(APPVEYOR_BUILD_NUMBER)
