@@ -3,9 +3,8 @@ version: "{build}"
 skip_tags: true
 
 environment:
-  libintl:
-    https://ci.appveyor.com/api/buildjobs/4ylailn76rrl85db/artifacts/
-  # https://github.com/maxwell-k/libintl-appveyor/releases/download/0.19.5.1.5/
+  libintl: "https://github.com/maxwell-k/libintl-appveyor/releases/\
+    download/0.19.5.1.97/"
   mirrors: pacman-mirrors-20150722-1-any.pkg.tar.xz
 
 cache:
@@ -109,14 +108,12 @@ on_failure:
       'https://raw.githubusercontent.com/appveyor/ci/master/scripts/\
       enable-rdp.ps1')))"
 
-#deploy:
-#  release: $(github_release).$(APPVEYOR_BUILD_NUMBER)
-#  description: "[AppVeyor build](https://ci.appveyor.com/project/\
-#    $(APPVEYOR_REPO_NAME)/build/$(APPVEYOR_BUILD_VERSION))"
-#  provider: GitHub
-#  artifact: gvim74.zip,gvim74.zip.sha256
-#  draft: true
-#  on: { appveyor_repo_tag: false }
-#  auth_token:
-#    secure: >
-#        qty+OleXdcHipnzD0RGUfPbTpe5Q9WtPvIknOFhkaIzQ28ccEsMU1mKSKQ2lnLUn
+deploy:
+  release: $(github_release).$(APPVEYOR_BUILD_NUMBER)
+  description: "[AppVeyor build](https://ci.appveyor.com/project/\
+    $(APPVEYOR_REPO_NAME)/build/$(APPVEYOR_BUILD_VERSION))"
+  provider: GitHub
+  draft: true
+  on: { appveyor_repo_tag: false }
+  auth_token:
+    secure: qty+OleXdcHipnzD0RGUfPbTpe5Q9WtPvIknOFhkaIzQ28ccEsMU1mKSKQ2lnLUn
