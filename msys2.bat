@@ -5,8 +5,7 @@ if not exist %mirrors% (
 	appveyor DownloadFile http://repo.msys2.org/msys/x86_64/%mirrors% ^
 	|| goto :error
 )
-C:\msys64\usr\bin\cygpath.exe -u %APPVEYOR_BUILD_FOLDER% > work_directory ^
-|| goto :error
+cygpath.exe -u %APPVEYOR_BUILD_FOLDER% > work_directory || goto :error
 set /P work_directory= < work_directory || goto :error
 del work_directory || goto :error
 echo cd "%work_directory%" >> C:\msys64\etc\profile || goto :error
@@ -15,7 +14,7 @@ set MSYSTEM=MSYS2 || goto :error
 (
 echo cd "${APPVEYOR_BUILD_FOLDER}" ^^^&^^^&
 echo pacman --upgrade --noconfirm "${mirrors}"
-) | C:\msys64\usr\bin\sh --login -s > nul 2>&1 || goto :error
+) | sh --login -s > nul 2>&1 || goto :error
 set MSYSTEM= || goto :error
 goto :EOF
 :error

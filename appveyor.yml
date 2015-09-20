@@ -12,24 +12,26 @@ cache:
   - C:\msys64\var\cache\pacman\pkg\zip-3.0-1-x86_64.pkg.tar.xz
 
 init: # Simplify the PATH variable
-  - "set PATH=%SystemRoot%\\system32;%SystemRoot%;\
-    %SystemRoot%\\System32\\Wbem;\
-    C:\\Program Files\\7-Zip;\
-    C:\\Program Files (x86)\\Git\\cmd;\
-    C:\\Program Files\\AppVeyor\\BuildAgent"
+  - "set PATH=\
+      ;%SystemRoot%\\system32\
+      ;%SystemRoot%\
+      ;%SystemRoot%\\System32\\Wbem\
+      ;C:\\Program Files\\7-Zip\
+      ;C:\\Program Files (x86)\\Git\\cmd\
+      ;C:\\Program Files\\AppVeyor\\BuildAgent\
+      ;C:\\msys64\\usr\\bin\
+    "
 
 install: # Install prerequisites
   - .\msys2.bat
-  - "C:\\msys64\\usr\\bin\\sh --login -c \"
-      pacman -S --needed --noconfirm zip
-    \" > nul 2> nul"
+  - sh --login -c "pacman -S --needed --noconfirm zip" > nul 2> nul
 
 before_build: # Download content
+  - cd %APPVEYOR_BUILD_FOLDER%
   - appveyor DownloadFile %libintl%/libintl-8.dll
   - appveyor DownloadFile %libintl%/release.sha256
-  - "C:\\msys64\\usr\\bin\\sh --login -c \"
-      sha256sum -c release.sha256
-    \""
+  - sh --login -c "sha256sum -c release.sha256"
+  - del release.sha256
   - git submodule update --init
 
 build_script: # Compile with Visual Studio
@@ -46,32 +48,24 @@ build_script: # Compile with Visual Studio
 
 after_build: # Package with MSYS2
   - set MSYSTEM=MINGW64
-  - "C:\\msys64\\usr\\bin\\sh --login -c \"
-      cd vim &&
-      cp
-        src/gvim.exe
-        src/vimrun.exe
-        src/GvimExt/gvimext.dll
-        src/gvim.pdb
-        . &&
-      cp src/xxd/xxd.exe xxdw32.exe &&
-      cp src/install.exe installw32.exe &&
-      cp src/uninstal.exe uninstalw32.exe &&
-      make VIM=./gvim.exe dosbin_gvim
-    \" > nul 2> nul"
-  - "C:\\msys64\\usr\\bin\\sh --login -c \"
-      cd vim &&
-      touch src/auto/config.mk &&
-      rm src/po/Makefile &&
-      cp ../libintl-8.dll libintl.dll &&
-      make VIM=./gvim.exe dosrt
-    \" > nul 2> nul"
-  - "C:\\msys64\\usr\\bin\\sh --login -c \"
-      cp vim/dist/gvim74.zip . &&
-      cp vim/dist/vim74rt.zip . &&
-      sha256sum gvim74.zip > gvim74.zip.sha256 &&
-      sha256sum vim74rt.zip > vim74rt.zip.sha256
-    \""
+  - cd %APPVEYOR_BUILD_FOLDER%\vim
+  - copy src\gvim.exe . > nul
+  - copy src\vimrun.exe . > nul
+  - copy src\GvimExt\gvimext.dll . > nul
+  - copy src\gvim.pdb . > nul
+  - copy src\xxd\xxd.exe xxdw32.exe > nul
+  - copy src\install.exe installw32.exe > nul
+  - copy src\uninstal.exe uninstalw32.exe > nul
+  - sh --login -c "cd vim && make VIM=./gvim.exe dosbin_gvim" > nul 2> nul
+  - type nul > src\auto\config.mk
+  - del src\po\Makefile
+  - copy ..\libintl-8.dll libintl.dll > nul
+  - sh --login -c "cd vim && make VIM=./gvim.exe dosrt" > nul 2> nul
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - copy vim\dist\gvim74.zip . > nul
+  - copy vim\dist\vim74rt.zip . > nul
+  - sh --login -c "sha256sum gvim74.zip > gvim74.zip.sha256"
+  - sh --login -c "sha256sum vim74rt.zip > vim74rt.zip.sha256"
 
 before_test:
   - cd %APPVEYOR_BUILD_FOLDER%\vim
@@ -80,9 +74,7 @@ before_test:
 
 test_script:
   - cd %APPVEYOR_BUILD_FOLDER%\vim\src\testdir
-  # needs unix tools like diff; use MSYS2 versions
-  - set PATH=C:\msys64\usr\bin;%PATH%
-  - nmake -f Make_dos.mak VIMPROG=..\..\gvim > nul
+  - nmake -f Make_dos.mak VIMPROG=..\..\gvim > nul # Uses diff from MSYS2
 
 on_failure:
   - ps: "$blockRdp = $true; iex ((new-object net.webclient).DownloadString((\
