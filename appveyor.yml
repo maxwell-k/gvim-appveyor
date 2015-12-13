@@ -95,6 +95,7 @@ before_deploy: # Find the vim version for the release label
   - git rev-parse HEAD | git name-rev --stdin --name-only --tags > ../tag
   - cd .. && set /P GITHUB_RELEASE= < tag && del /Q tag
   - echo Built release %GITHUB_RELEASE%.%APPVEYOR_BUILD_NUMBER%
+  - appveyor SetVariable -Name GitHubRelease -Value %GITHUB_RELEASE%
 
 deploy:
   release: $(GITHUB_RELEASE).$(APPVEYOR_BUILD_NUMBER)
