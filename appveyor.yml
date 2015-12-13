@@ -4,7 +4,9 @@ skip_tags: true
 
 environment:
   libintl: "https://github.com/maxwell-k/libintl-appveyor/releases/\
-    download/0.19.5.1.97/"
+    download/libintl-0.19.6+1/"
+  libiconv: "https://github.com/maxwell-k/libiconv-appveyor/releases/\
+    download/libiconv-1.14+1/"
   mirrors: pacman-mirrors-20150722-1-any.pkg.tar.xz
 
 cache:
@@ -12,9 +14,6 @@ cache:
   - C:\msys64\var\cache\pacman\pkg\zip-3.0-1-x86_64.pkg.tar.xz
 
 init: # Simplify the PATH variable
-  - ps: "iex ((new-object net.webclient).DownloadString((\
-      'https://raw.githubusercontent.com/appveyor/ci/master/scripts/\
-      enable-rdp.ps1')))"
   - "set PATH=\
       ;%SystemRoot%\\system32\
       ;%SystemRoot%\
@@ -32,9 +31,12 @@ install: # Install prerequisites
 before_build: # Download content
   - cd %APPVEYOR_BUILD_FOLDER%
   - appveyor DownloadFile %libintl%/libintl-8.dll
-  - appveyor DownloadFile %libintl%/release.sha256
-  - sh --login -c "sha256sum -c release.sha256"
-  - del release.sha256
+  - appveyor DownloadFile %libintl%/libintl-8.dll.sha256
+  - appveyor DownloadFile %libiconv%/libiconv-2.dll
+  - appveyor DownloadFile %libiconv%/libiconv-2.dll.sha256
+  - sh --login -c "sha256sum -c libintl-8.dll.sha256"
+  - sh --login -c "sha256sum -c libiconv-2.dll.sha256"
+  - del libintl-8.dll.sha256 libiconv-2.dll.sha256
   - git submodule update --init
 
 build_script: # Compile with Visual Studio
@@ -98,7 +100,7 @@ before_deploy: # Find the vim version for the release label
   - appveyor SetVariable -Name GitHubRelease -Value %GITHUB_RELEASE%
 
 deploy:
-  release: $(GITHUB_RELEASE).$(APPVEYOR_BUILD_NUMBER)
+  release: $(GITHUB_RELEASE)+$(APPVEYOR_BUILD_NUMBER)
   description: "[AppVeyor build](https://ci.appveyor.com/project/\
     $(APPVEYOR_REPO_NAME)/build/$(APPVEYOR_BUILD_VERSION))"
   provider: GitHub
