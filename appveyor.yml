@@ -72,10 +72,7 @@ after_build: # Package with MSYS2
 
 before_test:
   - cd %APPVEYOR_BUILD_FOLDER%\vim
-  - >
-      .\gvim -u NONE --cmd "set guioptions+=M"
-      --cmd "redir @a | version | 0put a | wq!"
-      version.txt
+  - .\gvim -u NONE -c "redir > version.txt | version | redir END | q"
   - type version.txt && del version.txt
 
 test_script:
