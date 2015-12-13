@@ -96,11 +96,11 @@ artifacts:
 before_deploy: # Find the vim version for the release label
   - cd %APPVEYOR_BUILD_FOLDER%\vim
   - git rev-parse HEAD | git name-rev --stdin --name-only --tags > ../tag
-  - cd .. && set /P github_release= < tag && del /Q tag
-  - echo Built release %github_release%.%APPVEYOR_BUILD_NUMBER%
+  - cd .. && set /P GITHUB_RELEASE= < tag && del /Q tag
+  - echo Built release %GITHUB_RELEASE%.%APPVEYOR_BUILD_NUMBER%
 
 deploy:
-  release: $(github_release).$(APPVEYOR_BUILD_NUMBER)
+  release: $(GITHUB_RELEASE).$(APPVEYOR_BUILD_NUMBER)
   description: "[AppVeyor build](https://ci.appveyor.com/project/\
     $(APPVEYOR_REPO_NAME)/build/$(APPVEYOR_BUILD_VERSION))"
   provider: GitHub
