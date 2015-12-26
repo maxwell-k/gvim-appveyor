@@ -4,7 +4,7 @@ skip_tags: true
 
 environment:
   libintl: "https://github.com/maxwell-k/libintl-appveyor/releases/\
-    download/libintl-0.19.6+1"
+    download/gettext-0.19.6+1"
   libiconv: "https://github.com/maxwell-k/libiconv-appveyor/releases/\
     download/libiconv-1.14+1"
   mirrors: pacman-mirrors-20150722-1-any.pkg.tar.xz
