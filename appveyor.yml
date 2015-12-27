@@ -65,7 +65,7 @@ after_build: # Package with MSYS2
   - sh --login -c "cd vim && make VIM=./gvim.exe dosbin_gvim" > nul 2> nul
   - type nul > src\auto\config.mk
   - del src\po\Makefile
-  - copy ..\libintl-8.dll libintl.dll > nul
+  - copy libintl-8.dll libintl.dll > nul
   - sh --login -c "cd vim && make VIM=./gvim.exe dosrt" > nul 2> nul
   - cd %APPVEYOR_BUILD_FOLDER%
   - copy vim\dist\gvim74.zip . > nul
