@@ -14,6 +14,9 @@ cache:
   - C:\msys64\var\cache\pacman\pkg\zip-3.0-1-x86_64.pkg.tar.xz
 
 init: # Simplify the PATH variable
+  - ps: "iex ((new-object net.webclient).DownloadString((\
+      'https://raw.githubusercontent.com/appveyor/ci/master/scripts/\
+      enable-rdp.ps1')))"
   - "set PATH=\
       ;%SystemRoot%\\system32\
       ;%SystemRoot%\
