@@ -30,8 +30,8 @@ install: # Install prerequisites
 
 before_build: # Download content
   - cd %APPVEYOR_BUILD_FOLDER%
-  - echo %libintl%/libintl-8.dll
-  - echo %libiconv%/libiconv-2.dll
+  - git submodule update --init
+  - cd %APPVEYOR_BUILD_FOLDER%\vim
   - appveyor DownloadFile %libintl%/libintl-8.dll
   - appveyor DownloadFile %libintl%/libintl-8.dll.sha256
   - appveyor DownloadFile %libiconv%/libiconv-2.dll
@@ -39,7 +39,6 @@ before_build: # Download content
   - sh --login -c "sha256sum -c libintl-8.dll.sha256"
   - sh --login -c "sha256sum -c libiconv-2.dll.sha256"
   - del libintl-8.dll.sha256 libiconv-2.dll.sha256
-  - git submodule update --init
 
 build_script: # Compile with Visual Studio
   - 'cd "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\"'
