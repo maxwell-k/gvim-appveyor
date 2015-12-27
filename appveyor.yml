@@ -36,8 +36,8 @@ before_build: # Download content
   - appveyor DownloadFile %libintl%/libintl-8.dll.sha256
   - appveyor DownloadFile %libiconv%/libiconv-2.dll
   - appveyor DownloadFile %libiconv%/libiconv-2.dll.sha256
-  - sh --login -c "sha256sum -c libintl-8.dll.sha256"
-  - sh --login -c "sha256sum -c libiconv-2.dll.sha256"
+  - sh --login -c "cd vim && sha256sum -c libintl-8.dll.sha256"
+  - sh --login -c "cd vim && sha256sum -c libiconv-2.dll.sha256"
   - del libintl-8.dll.sha256 libiconv-2.dll.sha256
 
 build_script: # Compile with Visual Studio
