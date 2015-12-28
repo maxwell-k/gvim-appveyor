@@ -4,7 +4,7 @@ skip_tags: true
 
 environment:
   libintl: "https://github.com/maxwell-k/libintl-appveyor/releases/\
-    download/gettext-0.19.6+1"
+    download/gettext-0.19.7+1"
   libiconv: "https://github.com/maxwell-k/libiconv-appveyor/releases/\
     download/libiconv-1.14+1"
   mirrors: pacman-mirrors-20150722-1-any.pkg.tar.xz
@@ -18,7 +18,7 @@ init: # Simplify the PATH variable
       'https://raw.githubusercontent.com/appveyor/ci/master/scripts/\
       enable-rdp.ps1')))"
   - "set PATH=\
-      ;%SystemRoot%\\system32\
+      %SystemRoot%\\system32\
       ;%SystemRoot%\
       ;%SystemRoot%\\System32\\Wbem\
       ;C:\\Program Files\\7-Zip\
@@ -78,7 +78,6 @@ after_build: # Package with MSYS2
 
 before_test:
   - cd %APPVEYOR_BUILD_FOLDER%\vim
-  - copy C:\msys64\mingw64\bin\libwinpthread-1.dll . > nul
   - .\gvim -u NONE -c "redir > version.txt | version | redir END | q"
   - type version.txt && del version.txt
 
