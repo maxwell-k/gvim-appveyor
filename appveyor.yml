@@ -78,6 +78,7 @@ after_build: # Package with MSYS2
 
 before_test:
   - cd %APPVEYOR_BUILD_FOLDER%\vim
+  - copy C:\msys64\mingw64\bin\libwinpthread-1.dll . > nul
   - .\gvim -u NONE -c "redir > version.txt | version | redir END | q"
   - type version.txt && del version.txt
 
