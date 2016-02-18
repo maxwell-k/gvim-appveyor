@@ -80,6 +80,7 @@ before_test:
   - cd %APPVEYOR_BUILD_FOLDER%\vim
   - .\gvim -u NONE -c "redir > version.txt | version | redir END | q"
   - type version.txt && del version.txt
+  - C:\Python34-x64\python.exe --version
 
 test_script:
   - cd %APPVEYOR_BUILD_FOLDER%\vim\src\testdir
